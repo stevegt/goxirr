@@ -18,9 +18,10 @@ type Transaction struct {
 //Transactions represent a cash flow consisting of individual transactions
 type Transactions []Transaction
 
-var Guess float64 = 0.1
-var Step float64 = 0.1
-var Limit int64 = 100000
+var Span float64 = 999.9
+var SpanFactor float64 = 0.8
+var Limit int64 = 99999
+var Epsilon = 0.0001
 
 //Xirr returns the Internal Rate of Return (IRR) for an irregular series of cash flows (XIRR)
 func Xirr(transactions Transactions) float64 {
@@ -29,30 +30,47 @@ func Xirr(transactions Transactions) float64 {
 		years = append(years, (t.Date.Sub(transactions[0].Date).Hours()/24)/365)
 	}
 
-	residual := 1.0
-	step := Step
-	guess := Guess
-	epsilon := 0.0001
 	limit := Limit
+	span := Span
+	guess := 0.0
 
-	for math.Abs(residual) > epsilon && limit > 0 {
+	for limit > 0 {
 		limit--
 
-		residual = 0.0
+		// approach guess from both high and low brackets -- otherwise
+		// we risk residual approaching infinity when IRR == -100%
+		guessHi := guess + span
+		guessLo := guess - span
+		residualHi := getResidual(transactions, years, guessHi)
+		residualLo := getResidual(transactions, years, guessLo)
 
-		for i, t := range transactions {
-			residual += t.Cash / math.Pow(guess, years[i])
+		// fmt.Println("span", span, "guess", guess, "residualHi", residualHi, "residualLo", residualLo)
+		if math.Abs(residualHi) < Epsilon && math.Abs(residualLo) < Epsilon {
+			break
 		}
 
-		if math.Abs(residual) > epsilon {
-			if residual > 0 {
-				guess += step
-			} else {
-				guess -= step
-				step /= 2.0
-			}
+		if math.Abs(residualHi) < math.Abs(residualLo) {
+			guess = (guess + guessHi) * .5
+		} else {
+			guess = (guess + guessLo) * .5
 		}
+		span *= SpanFactor
+
 	}
 
-	return math.Round(((guess-1)*100)*100) / 100
+	return math.Round(guess*100*100) / 100
+}
+
+func getResidual(transactions Transactions, years []float64, guess float64) (residual float64) {
+	for i, t := range transactions {
+		cash := t.Cash
+		if cash == 0 {
+			// set cash to an infinitesimal when there is 0 return or
+			// 0 investment -- otherwise IRR will converge toward net
+			// cash instead of a percentage
+			cash = Epsilon
+		}
+		residual += cash / math.Pow(1+guess, years[i])
+	}
+	return
 }

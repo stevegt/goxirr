@@ -3,12 +3,27 @@
 
 Goxirr is a simple implementation of a function for calculating the Internal Rate of Return for irregular cash flow (XIRR).
 
-This version modified by stevegt to export three tunables to support
-more extreme conditions:
+This fork was modified by stevegt to support more extreme conditions:
 
-- Guess: initial IRR guess; defaults to .1
-- Step: initial successive approximation step size; defaults to .1
-- Limit: maximum number of successive approximation iterations; defaults to 100000
+- handles case when IRR == -100%
+- handles case when cashflow == 0 in any given transaction
+- uses a bracketing function rather than stepwise successive
+  approximation in order to handle cases where the limit of the
+  residual is +/- infinity when approaching the correct IRR
+
+There are these tunables:
+
+- Span:  Initial successive approximation bracket size.  You may need
+  to increase this if you expect +/- IRR larger than the default.
+  Defaults to 999.9.
+- SpanFactor:  Span is multiplied by this factor after every
+  iteration.  Decreasing this will decrease computation time but will
+  also limit accuracy in pathological cases.  Defaults to 0.8.
+- Limit:  Maximum number of successive approximation iterations.
+  Defaults to 99999.
+- Epsilon:  Tolerance for IRR error.  Also used as an infinitesimal
+  when cashflow == 0 in any transaction. Increasing this will decrease
+  computation time as well as accuracy.  Defaults to 0.0001.
 
 ## Links
 - [Wikipedia](https://en.wikipedia.org/wiki/Internal_rate_of_return)
