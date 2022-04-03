@@ -1,3 +1,3 @@
-module github.com/maksim77/goxirr
+module github.com/stevegt/goxirr
 
 go 1.13
