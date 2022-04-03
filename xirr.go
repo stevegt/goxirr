@@ -18,6 +18,10 @@ type Transaction struct {
 //Transactions represent a cash flow consisting of individual transactions
 type Transactions []Transaction
 
+var Guess float64 = 0.1
+var Step float64 = 0.1
+var Limit int64 = 100000
+
 //Xirr returns the Internal Rate of Return (IRR) for an irregular series of cash flows (XIRR)
 func Xirr(transactions Transactions) float64 {
 	var years []float64
@@ -26,10 +30,10 @@ func Xirr(transactions Transactions) float64 {
 	}
 
 	residual := 1.0
-	step := 0.05
-	guess := 0.05
+	step := Step
+	guess := Guess
 	epsilon := 0.0001
-	limit := 10000
+	limit := Limit
 
 	for math.Abs(residual) > epsilon && limit > 0 {
 		limit--
