@@ -63,6 +63,10 @@ func Xirr(transactions Transactions) float64 {
 
 	}
 
+	if limit == 0 {
+		guess = math.NaN()
+	}
+
 	return math.Round(guess*100*100) / 100
 }
 
