@@ -44,6 +44,11 @@ func Xirr(transactions Transactions) float64 {
 		residualHi := getResidual(transactions, years, guessHi)
 		residualLo := getResidual(transactions, years, guessLo)
 
+		if math.IsNaN(residualHi) || math.IsNaN(residualLo) {
+			span *= .99
+			continue
+		}
+
 		// fmt.Println("span", span, "guess", guess, "residualHi", residualHi, "residualLo", residualLo)
 		if math.Abs(residualHi) < Epsilon && math.Abs(residualLo) < Epsilon {
 			break
