@@ -6,6 +6,7 @@ package goxirr
 
 import (
 	"math"
+	"math/rand"
 	"time"
 )
 
@@ -45,7 +46,7 @@ func Xirr(transactions Transactions) float64 {
 		residualLo := getResidual(transactions, years, guessLo)
 
 		if math.IsNaN(residualHi) || math.IsNaN(residualLo) {
-			span *= .99
+			span *= 1 - 1/float64(Limit)
 			continue
 		}
 
@@ -56,8 +57,10 @@ func Xirr(transactions Transactions) float64 {
 
 		if math.Abs(residualHi) < math.Abs(residualLo) {
 			guess = (guess + guessHi) * .5
-		} else {
+		} else if math.Abs(residualHi) > math.Abs(residualLo) {
 			guess = (guess + guessLo) * .5
+		} else {
+			guess += rand.Float64() - rand.Float64()
 		}
 		span *= SpanFactor
 

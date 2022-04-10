@@ -27,7 +27,7 @@ func TestXirr(t *testing.T) {
 		transactions []Transaction
 	}
 
-	var case1, case2, case3, case4, case5, case6, case7 args
+	var case1, case2, case3, case4, case5, case6, case7, case8 args
 	case1.transactions = append(case1.transactions, Transaction{
 		Date: time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC),
 		Cash: -100,
@@ -84,6 +84,14 @@ func TestXirr(t *testing.T) {
 		Cash: 101,
 	})
 
+	case8.transactions = append(case8.transactions, Transaction{
+		Date: time.Date(2022, time.April, 9, 0, 0, 0, 0, time.UTC),
+		Cash: -3000000,
+	}, Transaction{
+		Date: time.Date(2032, time.April, 6, 0, 0, 0, 0, time.UTC),
+		Cash: 3580000,
+	})
+
 	tests := []struct {
 		name string
 		args args
@@ -96,6 +104,7 @@ func TestXirr(t *testing.T) {
 		{name: "-100%", args: case5, want: -100},
 		{name: "-150%", args: case6, want: -150},
 		{name: "39.12%", args: case7, want: 39.12},
+		{name: "1.78%", args: case8, want: 1.78},
 	}
 
 	for _, tt := range tests {
