@@ -1,12 +1,12 @@
 package goxirr
 
 import (
-	"fmt"
+	"math"
 	"testing"
 	"time"
 )
 
-func ExampleXirr() {
+func TestExample(t *testing.T) {
 	firstDate := time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)
 	t1 := Transaction{
 		Date: firstDate,
@@ -18,8 +18,11 @@ func ExampleXirr() {
 	}
 
 	tas := Transactions{t1, t2}
-	fmt.Println(Xirr(tas))
-	// Output: 12
+	want := 12.0
+	got := Xirr(tas)
+	if math.Abs(got-want) > Epsilon {
+		t.Errorf("Xirr() = %v, want %v", got, want)
+	}
 }
 
 func TestXirr(t *testing.T) {
@@ -109,7 +112,8 @@ func TestXirr(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Xirr(tt.args.transactions); got != tt.want {
+			got := Xirr(tt.args.transactions)
+			if math.Abs(got-tt.want) > Epsilon {
 				t.Errorf("Xirr() = %v, want %v", got, tt.want)
 			}
 		})
